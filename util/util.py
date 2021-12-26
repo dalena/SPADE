@@ -125,7 +125,8 @@ def tensor2label(label_tensor, n_label, imtype=np.uint8, tile=False):
     return result
 
 
-def save_image(image_numpy, image_path, create_dir=False):
+def save_image(image_numpy, image_path, width, height, create_dir=False):
+    print(int(width), int(height))
     if create_dir:
         os.makedirs(os.path.dirname(image_path), exist_ok=True)
     if len(image_numpy.shape) == 2:
@@ -134,6 +135,18 @@ def save_image(image_numpy, image_path, create_dir=False):
         image_numpy = np.repeat(image_numpy, 3, 2)
     image_pil = Image.fromarray(image_numpy)
 
+    minSide = min(width, height)
+    maxSide= max(width, height)
+    ratio = maxSide / minSide
+    widthIsBigger = False
+    if (width > height):
+        widthIsBigger = True
+
+    newW = 256 if widthIsBigger else 256/ratio
+    newH = 256 if not widthIsBigger else 256/ratio
+    newSize = (int(newW), int(newH))
+    newSize = (int(width/4), int(height/4))
+    image_pil = image_pil.resize(newSize, Image.LANCZOS)
     # save to png
     image_pil.save(image_path.replace('.jpg', '.png'))
 

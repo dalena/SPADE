@@ -62,6 +62,13 @@ class Pix2pixDataset(BaseDataset):
         transform_label = get_transform(self.opt, params, method=Image.NEAREST, normalize=False)
         label_tensor = transform_label(label) * 255.0
         label_tensor[label_tensor == 255] = self.opt.label_nc  # 'unknown' is opt.label_nc
+        replacement_values = [int(item) for item in self.opt.label_replace.split(',')]
+        it = iter(replacement_values)
+        replacement_tuples = [*zip(it, it)]
+        for pair in replacement_tuples:
+            label_tensor[label_tensor == pair[0]] = pair[1]
+
+
 
         # input image (real images)
         image_path = self.image_paths[index]
